@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="horizontal"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent">
+
+    <TextView android:id="@+id/tvCategoryHeader"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:gravity="center"
+              android:layout_alignParentTop="true"
+              android:layout_alignParentBottom="true"
+              android:textSize="30sp"
+              android:textColor="@color/colorConsolText"
+              android:padding="10dp"
+              android:text="@string/chooseBonus"
+              android:background="@drawable/screen"
+              android:typeface="sans"/>
+
+</LinearLayout>

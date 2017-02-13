@@ -1,8 +1,11 @@
 package com.deerslab.mathbomb;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.SoundPool;
@@ -26,8 +29,12 @@ public class GameActivity extends Activity implements View.OnClickListener, Soun
 
     private final String TAG = this.getClass().getSimpleName();
 
-    private Button btn1, btn2, btn3, btn4, btn5, btn6, btn7, btn8, btn9, btn0, btnClr, btnEnter;
+    private Button btn1, btn2, btn3, btn4, btn5, btn6, btn7, btn8, btn9, btn0, btnClr, btnEnter, btnAd;
+    private View vLife1, vLife2, vLife3, vLife4, vProgress1, vProgress2, vProgress3, vProgress4,
+            vProgress5, vProgress6, vProgress7, vProgress8, vProgress9, vProgress10,
+            lifeProgress, viewProgress, llButtons;
     private TextView tvTime, tvQuest, tvComment;
+    private Drawable greenRect, blankRect;
     private String correctAnswer, quest;
     private StringBuffer userAnswer;
     private GameTimer gameTimer;
@@ -41,12 +48,28 @@ public class GameActivity extends Activity implements View.OnClickListener, Soun
     MediaPlayer mediaPlayerWin;
 
     private GameState gameState;
-    private int progressCount;
+    private int progressCount = 1;
     private final int COUNTforWIN = 10;
-    private int number = 0;
+    //private int number = 0;
     private boolean sound;
+    private int currentLife, startLife = 1;
+
+    private boolean haveBonusLife = false;
+    private boolean usedBonusLife = false;
+    private boolean haveBonusTime = false;
+    private boolean usedBonusTime = false;
+    private int bonusTime = 60*1000;
+    private long GAME_TIME;
 
     private GoogleApiClient gac;
+
+    private int result = 0;
+    private int prevResult = 0;
+    private Random rn = new Random();
+
+    final int sdk = android.os.Build.VERSION.SDK_INT;
+
+    BonusAds bonusAds = BonusAds.getInstance(this);
 
 
     @Override
@@ -66,9 +89,36 @@ public class GameActivity extends Activity implements View.OnClickListener, Soun
         btn9 = (Button) findViewById(R.id.btn9);
         btnClr = (Button) findViewById(R.id.btnClr);
         btnEnter = (Button) findViewById(R.id.btnEnter);
+        btnAd = (Button) findViewById(R.id.AdButton);
         tvTime = (TextView) findViewById(R.id.tvTime);
         tvQuest = (TextView) findViewById(R.id.tvQuest);
         tvComment = (TextView) findViewById(R.id.tvAnswer);
+        vLife1 = (View)findViewById(R.id.life1);
+        vLife2 = (View)findViewById(R.id.life2);
+        vLife3 = (View)findViewById(R.id.life3);
+        vLife4 = (View)findViewById(R.id.life4);
+        vProgress1 = findViewById(R.id.progress1);
+        vProgress2 = findViewById(R.id.progress2);
+        vProgress3 = findViewById(R.id.progress3);
+        vProgress4 = findViewById(R.id.progress4);
+        vProgress5 = findViewById(R.id.progress5);
+        vProgress6 = findViewById(R.id.progress6);
+        vProgress7 = findViewById(R.id.progress7);
+        vProgress8 = findViewById(R.id.progress8);
+        vProgress9 = findViewById(R.id.progress9);
+        vProgress10 = findViewById(R.id.progress10);
+        llButtons = findViewById(R.id.llButtons);
+
+        btnAd.setVisibility(View.GONE);
+
+        //только пока не допилю прогрессы.
+        lifeProgress = findViewById(R.id.lifeProgress);
+        viewProgress = findViewById(R.id.viewProgress);
+        lifeProgress.setVisibility(View.GONE);
+        viewProgress.setVisibility(View.GONE);
+        
+        greenRect = getResources().getDrawable(R.drawable.green_rect);
+        blankRect = getResources().getDrawable(R.drawable.blank_rect);
 
         btn0.setOnClickListener(this);
         btn1.setOnClickListener(this);
@@ -82,6 +132,7 @@ public class GameActivity extends Activity implements View.OnClickListener, Soun
         btn9.setOnClickListener(this);
         btnClr.setOnClickListener(this);
         btnEnter.setOnClickListener(this);
+        btnAd.setOnClickListener(this);
 
         preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         sound = preferences.getBoolean("sound", true);
@@ -107,6 +158,18 @@ public class GameActivity extends Activity implements View.OnClickListener, Soun
 
         userAnswer = new StringBuffer();
         quest = new String();
+/*
+        if (preferences.getInt("life", 0) > 0){
+            haveBonusLife = true;
+            startLife++;
+        }
+        if (preferences.getInt("time", 0) > 0){
+            haveBonusTime = true;
+
+        }
+*/
+        currentLife = startLife;
+        //setLife(startLife);
 
         gameState = GameState.BEGIN;
 
@@ -117,6 +180,11 @@ public class GameActivity extends Activity implements View.OnClickListener, Soun
         refreshScreen();
 
         BoomActivity.adLoad(this);
+        BoomActivity.boolShowAd = true;
+
+        bonusAds.gameInit(this);
+
+
 
     }
 
@@ -163,6 +231,7 @@ public class GameActivity extends Activity implements View.OnClickListener, Soun
                     case R.id.btnEnter:
                         checkAnswer();
                         break;
+
                 }
                 break;
             case BOOM:
@@ -190,6 +259,14 @@ public class GameActivity extends Activity implements View.OnClickListener, Soun
                         }
                         break;
                 }
+                break;
+            case BEFORE_BOOM:
+                switch (v.getId()){
+                    case R.id.AdButton:
+                        adDialog();
+                        break;
+                }
+                break;
         }
 
         refreshScreen();
@@ -204,10 +281,10 @@ public class GameActivity extends Activity implements View.OnClickListener, Soun
             case MAINGAME:
                 tvQuest.setText(quest + userAnswer);
 
-                if (number == 1){
+                if (progressCount == 1){
                     tvComment.setText(getResources().getString(R.string.startComment));}
                 else {
-                    tvComment.setText(number + "/" + COUNTforWIN);
+                    tvComment.setText(progressCount + "/" + COUNTforWIN);
                 }
 
                 break;
@@ -226,18 +303,15 @@ public class GameActivity extends Activity implements View.OnClickListener, Soun
 
     private void generateQuest(){
 
-        Random rn = new Random();
-        int result = 0;
         int a1 =0, a2=0, a3=0, a4=0;
         boolean oper = false;
-        number++;
 
         switch (Database.currentCategory) {
-            case PLUS:
+            case PLUS1:
                 switch (Database.currentLevel) {
                     case 1:
                         a1 = rn.nextInt(19)+1;
-                        a2 = rn.nextInt(9)+1;
+                        a2 = rn.nextInt(19)+1;
                         quest = a1 + " + " + a2 + " =";
                         break;
                     case 2:
@@ -251,52 +325,116 @@ public class GameActivity extends Activity implements View.OnClickListener, Soun
                         quest = a1 + " + " + a2 + " =";
                         break;
                     case 4:
-                        a1 = rn.nextInt(90)+10;
-                        a2 = rn.nextInt(90)+10;
+                        a1 = rn.nextInt(60)+20;
+                        a2 = rn.nextInt(60)+20;
                         quest = a1 + " + " + a2 + " =";
                         break;
                     case 5:
-                        a1 = rn.nextInt(19)+1;
-                        a2 = rn.nextInt(19)+1;
-                        a3 = rn.nextInt(19)+1;
-                        quest = a1 + " + " + a2 + " + " +a3 + " =";
+                        a1 = rn.nextInt(100)+20;
+                        a2 = rn.nextInt(100)+20;
+                        quest = a1 + " + " + a2 + " =";
                         break;
                     case 6:
-                        a1 = rn.nextInt(39)+1;
-                        a2 = rn.nextInt(39)+1;
-                        a3 = rn.nextInt(39)+1;
-                        quest = a1 + " + " + a2 + " + " +a3 + " =";
+                        a1 = rn.nextInt(100)+40;
+                        a2 = rn.nextInt(100)+40;
+                        quest = a1 + " + " + a2 + " =";
                         break;
                     case 7:
+                        a1 = rn.nextInt(100)+60;
+                        a2 = rn.nextInt(100)+60;
+                        quest = a1 + " + " + a2 + " =";
+                        break;
+                    case 8:
+                        a1 = rn.nextInt(100)+100;
+                        a2 = rn.nextInt(100)+100;
+                        quest = a1 + " + " + a2 + " =";
+                        break;
+                    case 9:
+                        a1 = rn.nextInt(40)+10;
+                        a2 = rn.nextInt(40)+10;
+                        a3 = rn.nextInt(40)+10;
+                        quest = a1 + " + " + a2 + " + " +a3 + " =";
+                        break;
+                    default:
+                        a1 = rn.nextInt(90)+10;
+                        a2 = rn.nextInt(90)+10;
+                        a3 = rn.nextInt(90)+10;
+                        quest = a1 + " + " + a2 + " + " +a3 + " =";
+                        break;
+                }
+                result = a1 + a2 + a3 + a4;
+                break;
+
+            case PLUS2:
+                switch (Database.currentLevel){
+                    case 1:
+                        a1 = rn.nextInt(10)+10;
+                        a2 = rn.nextInt(10)+10;
+                        a3 = rn.nextInt(10)+10;
+                        quest = a1 + " + " + a2 + " + " +a3 + " =";
+                        break;
+                    case 2:
+                        a1 = rn.nextInt(30)+10;
+                        a2 = rn.nextInt(30)+10;
+                        a3 = rn.nextInt(30)+10;
+                        quest = a1 + " + " + a2 + " + " +a3 + " =";
+                        break;
+                    case 3:
                         a1 = rn.nextInt(50)+10;
                         a2 = rn.nextInt(50)+10;
                         a3 = rn.nextInt(50)+10;
                         quest = a1 + " + " + a2 + " + " +a3 + " =";
                         break;
-                    case 8:
-                        a1 = rn.nextInt(89)+10;
-                        a2 = rn.nextInt(89)+10;
-                        a3 = rn.nextInt(89)+10;
+                    case 4:
+                        a1 = rn.nextInt(70)+10;
+                        a2 = rn.nextInt(70)+10;
+                        a3 = rn.nextInt(70)+10;
                         quest = a1 + " + " + a2 + " + " +a3 + " =";
                         break;
-                    case 9:
+                    case 5:
+                        a1 = rn.nextInt(90)+10;
+                        a2 = rn.nextInt(90)+10;
+                        a3 = rn.nextInt(90)+10;
+                        quest = a1 + " + " + a2 + " + " +a3 + " =";
+                        break;
+                    case 6:
+                        a1 = rn.nextInt(100)+50;
+                        a2 = rn.nextInt(100)+50;
+                        a3 = rn.nextInt(100)+50;
+                        quest = a1 + " + " + a2 + " + " +a3 + " =";
+                        break;
+                    case 7:
+                        a1 = rn.nextInt(100)+100;
+                        a2 = rn.nextInt(100)+100;
+                        a3 = rn.nextInt(100)+100;
+                        quest = a1 + " + " + a2 + " + " +a3 + " =";
+                        break;
+                    case 8:
                         a1 = rn.nextInt(70)+10;
                         a2 = rn.nextInt(40)+10;
                         a3 = rn.nextInt(70)+10;
                         a4 = rn.nextInt(19)+1;
                         quest = a1 + " + " + a2 + " + " +a3 + " + " + a4 + " =";
                         break;
-                    default:
-                        a1 = rn.nextInt(89)+10;
+                    case 9:
+                        a1 = rn.nextInt(90)+10;
                         a2 = rn.nextInt(40)+10;
                         a3 = rn.nextInt(40)+50;
                         a4 = rn.nextInt(60)+20;
                         quest = a1 + " + " + a2 + " + " +a3 + " + " + a4 + " =";
                         break;
+                    default:
+                        a1 = rn.nextInt(99)+1;
+                        a2 = rn.nextInt(99)+1;
+                        a3 = rn.nextInt(99)+1;
+                        a4 = rn.nextInt(99)+1;
+                        quest = a1 + " + " + a2 + " + " +a3 + " + " + a4 + " =";
+                        break;
                 }
                 result = a1 + a2 + a3 + a4;
                 break;
-            case MINUS:
+
+            case MINUS1:
                 switch (Database.currentLevel){
                     case 1:
                         a1 = rn.nextInt(10)+10;
@@ -309,55 +447,122 @@ public class GameActivity extends Activity implements View.OnClickListener, Soun
                         quest = a1 + " - " + a2 + " =";
                         break;
                     case 3:
-                        a1 = rn.nextInt(30)+40;
-                        a2 = rn.nextInt(29)+1;
-                        quest = a1 + " - " + a2 + " =";
-                        break;
-                    case 4:
-                        a1 = rn.nextInt(50)+40;
+                        a1 = rn.nextInt(40)+40;
                         a2 = rn.nextInt(39)+1;
                         quest = a1 + " - " + a2 + " =";
                         break;
+                    case 4:
+                        a1 = rn.nextInt(40)+80;
+                        a2 = rn.nextInt(60)+20;
+                        quest = a1 + " - " + a2 + " =";
+                        break;
                     case 5:
-                        a1 = rn.nextInt(49)+50;
-                        a2 = rn.nextInt(40)+10;
+                        a1 = rn.nextInt(50)+100;
+                        a2 = rn.nextInt(70)+30;
                         quest = a1 + " - " + a2 + " =";
                         break;
                     case 6:
-                        a1 = rn.nextInt(20)+20;
-                        a2 = rn.nextInt(9)+1;
-                        a3 = rn.nextInt(9)+1;
-                        quest = a1 + " - " + a2 + " - " + a3 + " =";
+                        a1 = rn.nextInt(100)+100;
+                        a2 = rn.nextInt(70)+30;
+                        quest = a1 + " - " + a2 + " =";
                         break;
                     case 7:
-                        a1 = rn.nextInt(20)+70;
-                        a2 = rn.nextInt(34)+1;
-                        a3 = rn.nextInt(34)+1;
-                        quest = a1 + " - " + a2 + " - " + a3 + " =";
+                        a1 = rn.nextInt(150)+150;
+                        a2 = rn.nextInt(100)+50;
+                        quest = a1 + " - " + a2 + " =";
                         break;
                     case 8:
-                        a1 = rn.nextInt(19)+80;
+                        a1 = rn.nextInt(200)+200;
+                        a2 = rn.nextInt(100)+100;
+                        quest = a1 + " - " + a2 + " =";
+                        break;
+                    case 9:
+                        a1 = rn.nextInt(30)+70;
+                        a2 = rn.nextInt(39)+1;
+                        a3 = rn.nextInt(29)+1;
+                        quest = a1 + " - " + a2 + " - " + a3 + " =";
+                        break;
+                    default:
+                        a1 = rn.nextInt(40)+80;
                         a2 = rn.nextInt(39)+1;
                         a3 = rn.nextInt(39)+1;
                         quest = a1 + " - " + a2 + " - " + a3 + " =";
                         break;
-                    case 9:
-                        a1 = rn.nextInt(19)+80;
-                        a2 = rn.nextInt(19)+1;
+                }
+                result = a1 - a2 - a3 - a4;
+                break;
+
+            case MINUS2:
+                switch (Database.currentLevel){
+                    case 1:
+                        a1 = rn.nextInt(30)+70;
+                        a2 = rn.nextInt(39)+1;
+                        a3 = rn.nextInt(29)+1;
+                        quest = a1 + " - " + a2 + " - " + a3 + " =";
+                        break;
+                    case 2:
+                        a1 = rn.nextInt(40)+80;
+                        a2 = rn.nextInt(39)+1;
+                        a3 = rn.nextInt(39)+1;
+                        quest = a1 + " - " + a2 + " - " + a3 + " =";
+                        break;
+                    case 3:
+                        a1 = rn.nextInt(100)+100;
+                        a2 = rn.nextInt(40)+10;
+                        a3 = rn.nextInt(40)+10;
+                        quest = a1 + " - " + a2 + " - " + a3 + " =";
+                        break;
+                    case 4:
+                        a1 = rn.nextInt(200)+200;
+                        a2 = rn.nextInt(50)+50;
+                        a3 = rn.nextInt(50)+50;
+                        quest = a1 + " - " + a2 + " - " + a3 + " =";
+                        break;
+                    case 5:
+                        a1 = rn.nextInt(40)+80;
+                        a2 = rn.nextInt(39)+1;
+                        a3 = rn.nextInt(39)+1;
+                        quest = a1 + " - " + a2 + " - " + a3 + " =";
+                        break;
+                    case 6:
+                        a1 = rn.nextInt(30)+30;
+                        a2 = rn.nextInt(9)+1;
+                        a3 = rn.nextInt(9)+1;
+                        a4 = rn.nextInt(9)+1;
+                        quest = a1 + " - " + a2 + " - " + a3 +  " - " + a4 + " =";
+                        break;
+                    case 7:
+                        a1 = rn.nextInt(50)+50;
+                        a2 = rn.nextInt(15)+5;
                         a3 = rn.nextInt(19)+1;
                         a4 = rn.nextInt(9)+1;
                         quest = a1 + " - " + a2 + " - " + a3 +  " - " + a4 + " =";
                         break;
-                    default:
-                        a1 = rn.nextInt(19)+80;
-                        a2 = rn.nextInt(30)+10;
-                        a3 = rn.nextInt(19)+1;
+                    case 8:
+                        a1 = rn.nextInt(70)+80;
+                        a2 = rn.nextInt(20)+10;
+                        a3 = rn.nextInt(29)+1;
                         a4 = rn.nextInt(19)+1;
+                        quest = a1 + " - " + a2 + " - " + a3 +  " - " + a4 + " =";
+                        break;
+                    case 9:
+                        a1 = rn.nextInt(80)+120;
+                        a2 = rn.nextInt(20)+20;
+                        a3 = rn.nextInt(30)+10;
+                        a4 = rn.nextInt(30)+10;
+                        quest = a1 + " - " + a2 + " - " + a3 +  " - " + a4 + " =";
+                        break;
+                    default:
+                        a1 = rn.nextInt(100)+150;
+                        a2 = rn.nextInt(40)+10;
+                        a3 = rn.nextInt(40)+10;
+                        a4 = rn.nextInt(40)+10;
                         quest = a1 + " - " + a2 + " - " + a3 +  " - " + a4 + " =";
                         break;
                 }
                 result = a1 - a2 - a3 - a4;
                 break;
+
             case MISC1:
                 switch (Database.currentLevel){
                     case 1:
@@ -394,6 +599,7 @@ public class GameActivity extends Activity implements View.OnClickListener, Soun
                         a3 = rn.nextInt(9)+1;
                         oper = rn.nextBoolean();
                         quest = a1 + " - " + a2 + (oper ? " + " : " - ") + a3 + " =";
+                        result = oper ? a1 - a2 + a3 : a1 - a2 - a3;
                         break;
                     case 6:
                         a1 = rn.nextInt(40)+40;
@@ -439,6 +645,7 @@ public class GameActivity extends Activity implements View.OnClickListener, Soun
                         break;
                 }
                 break;
+
             case MULT:
                 switch (Database.currentLevel){
                     case 1:
@@ -569,6 +776,7 @@ public class GameActivity extends Activity implements View.OnClickListener, Soun
                         break;
                 }
                 break;
+
             case MISC2:
                 switch (Database.currentLevel){
                     case 1:
@@ -627,12 +835,13 @@ public class GameActivity extends Activity implements View.OnClickListener, Soun
                         break;
                     default:
                         result = 20 + rn.nextInt(9);
-                        a2 = 20 + rn.nextInt(9);
+                        a2 = 20 + rn.nextInt();
                         a1 = result*a2;
                         quest = a1 + " / " + a2 + " =";
                         break;
                 }
         }
+
         quest = quest + " ";
         correctAnswer = result + "";
         userAnswer = new StringBuffer();
@@ -642,14 +851,26 @@ public class GameActivity extends Activity implements View.OnClickListener, Soun
     private void checkAnswer(){
         if (correctAnswer.equals(userAnswer.toString())){
             progressCount++;
-            if (progressCount >= COUNTforWIN){
+            //setMyProgress(progressCount);
+            if (progressCount > COUNTforWIN){
                 changeStateToWin();
             } else {
-                generateQuest();
+
+                int i=10;
+                while((prevResult == result) || (i>0)){
+                    generateQuest();
+                    i--;
+                }
+                prevResult = result;
+                //generateQuest();
             }
         } else {
-            changeStateToPreBoom();
-            mTracker.send(new HitBuilders.EventBuilder().setAction("wrong answer").setCategory(Database.currentCategory.name()).setLabel("Level " + Database.currentLevel).build());
+            currentLife--;
+            //setLife(currentLife);
+            if (currentLife <= 0) {
+                changeStateToPreBoom();
+                mTracker.send(new HitBuilders.EventBuilder().setAction("wrong answer").setCategory(Database.currentCategory.name()).setLabel("Level " + Database.currentLevel).build());
+            }
         }
 
         refreshScreen();
@@ -693,42 +914,50 @@ public class GameActivity extends Activity implements View.OnClickListener, Soun
         editor.putInt("countDefusedBomb", ++countDefusedBomb);
 
         int progressSumm = 1;
-        progressSumm += preferences.getInt("progressPLUS", 0);
-        progressSumm += preferences.getInt("progressMINUS", 0);
+        progressSumm += preferences.getInt("progressPLUS1", 0);
+        progressSumm += preferences.getInt("progressPLUS2", 0);
+        progressSumm += preferences.getInt("progressMINUS1", 0);
+        progressSumm += preferences.getInt("progressMINUS2", 0);
         progressSumm += preferences.getInt("progressMISC1", 0);
         progressSumm += preferences.getInt("progressMULT", 0);
         progressSumm += preferences.getInt("progressDIVISION", 0);
 
-        if (progressSumm >= 20){
+        if (progressSumm >= 30){
+            editor.putBoolean("accessibleMINUS2", true);
+        } else if (progressSumm >= 25){
             editor.putBoolean("accessibleDIVISION", true);
-        } else if (progressSumm >= 15){
+        }else if (progressSumm >= 20){
+            editor.putBoolean("accessiblePLUS2", true);
+        }else if (progressSumm >= 15){
             editor.putBoolean("accessibleMULT", true);
         } else if (progressSumm >= 10){
             editor.putBoolean("accessibleMISC1", true);
         } else if (progressSumm >= 5){
-            editor.putBoolean("accessibleMINUS", true);
+            editor.putBoolean("accessibleMINUS1", true);
         }
 
         editor.apply();
 
         try {
-            if (progress == 10){
-                switch (currentCategory){
-                    case PLUS:
-                        Games.Achievements.unlock(gac, getString(R.string.achievement_addition));
-                        break;
-                    case MINUS:
-                        Games.Achievements.unlock(gac, getString(R.string.achievement_subtraction));
-                        break;
-                    case MISC1:
-                        Games.Achievements.unlock(gac, getString(R.string.achievement_ombinations_1));
-                        break;
-                    case MULT:
-                        Games.Achievements.unlock(gac, getString(R.string.achievement_multiplication));
-                        break;
-                    case DIVISION:
-                        Games.Achievements.unlock(gac, getString(R.string.achievement_division));
-                        break;
+            if (gac.isConnected()) {
+                if (progress == 10) {
+                    switch (currentCategory) {
+                        case PLUS1:
+                            Games.Achievements.unlock(gac, getString(R.string.achievement_addition));
+                            break;
+                        case MINUS1:
+                            Games.Achievements.unlock(gac, getString(R.string.achievement_subtraction));
+                            break;
+                        case MISC1:
+                            Games.Achievements.unlock(gac, getString(R.string.achievement_ombinations_1));
+                            break;
+                        case MULT:
+                            Games.Achievements.unlock(gac, getString(R.string.achievement_multiplication));
+                            break;
+                        case DIVISION:
+                            Games.Achievements.unlock(gac, getString(R.string.achievement_division));
+                            break;
+                    }
                 }
             }
             Games.Achievements.increment(gac, getString(R.string.achievement_100_bombs_defused), 1);
@@ -737,10 +966,7 @@ public class GameActivity extends Activity implements View.OnClickListener, Soun
             e.printStackTrace();
         }
 
-
         mTracker.send(new HitBuilders.EventBuilder().setAction("win").setCategory(Database.currentCategory.name()).setLabel("Level " + Database.currentLevel).build());
-
-
 
     }
 
@@ -749,11 +975,7 @@ public class GameActivity extends Activity implements View.OnClickListener, Soun
         gameTimer.cancel(true);
 
         long startTime = System.currentTimeMillis();
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        SharedPreferences.Editor editor = preferences.edit();
-        int countExplodedBomb = preferences.getInt("countExplodedBomb", 0);
-        editor.putInt("countExplodedBomb", ++countExplodedBomb);
-        editor.apply();
+
 
         Log.d("Preferences time", ((System.currentTimeMillis() - startTime)) + "");
 
@@ -761,9 +983,31 @@ public class GameActivity extends Activity implements View.OnClickListener, Soun
         //gameTimer.execute(gameState);
         gameTimer.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, gameState);
 
+
+        Log.d("isReadyAdBool in game", ""+ bonusAds.isReadyAdBool);
+        if (bonusAds.isReadyAdBool) {
+            llButtons.setVisibility(View.GONE);
+            btnAd.setVisibility(View.VISIBLE);
+        }
+
     }
 
     protected void changeStateToBoom(){
+
+        try {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(GameActivity.this);
+                    SharedPreferences.Editor editor = preferences.edit();
+                    int countExplodedBomb = preferences.getInt("countExplodedBomb", 0);
+                    editor.putInt("countExplodedBomb", ++countExplodedBomb);
+                    editor.apply();
+                }
+            });
+        } catch (Exception e){
+
+        }
 
         try {
             gameTimer.cancel(true);
@@ -793,19 +1037,137 @@ public class GameActivity extends Activity implements View.OnClickListener, Soun
 
     }
 
+    private void setMyProgress(int i){
+            switch (i) {
+                case 10:
+                    vProgress10.setBackgroundDrawable(greenRect);
+                case 9:
+                    vProgress9.setBackgroundDrawable(greenRect);
+                case 8:
+                    vProgress8.setBackgroundDrawable(greenRect);
+                case 7:
+                    vProgress7.setBackgroundDrawable(greenRect);
+                case 6:
+                    vProgress6.setBackgroundDrawable(greenRect);
+                case 5:
+                    vProgress5.setBackgroundDrawable(greenRect);
+                case 4:
+                    vProgress4.setBackgroundDrawable(greenRect);
+                case 3:
+                    vProgress3.setBackgroundDrawable(greenRect);
+                case 2:
+                    vProgress2.setBackgroundDrawable(greenRect);
+                case 1:
+                    vProgress1.setBackgroundDrawable(greenRect);
+                    break;
+            }
+
+    }
+
+    private void setLife(int i){
+        vLife4.setBackgroundDrawable(blankRect);
+        vLife3.setBackgroundDrawable(blankRect);
+        vLife2.setBackgroundDrawable(blankRect);
+        vLife1.setBackgroundDrawable(blankRect);
+
+        switch (i){
+            case 4:
+                vLife4.setBackgroundDrawable(greenRect);
+            case 3:
+                vLife3.setBackgroundDrawable(greenRect);
+            case 2:
+                vLife2.setBackgroundDrawable(greenRect);
+            case 1:
+                vLife1.setBackgroundDrawable(greenRect);
+                break;
+        }
+    }
+
+    private void adDialog(){
+
+        gameTimer.cancel(true);
+
+        runOnUiThread(new Runnable() {
+
+            @Override
+            public void run() {
+                final AlertDialog.Builder builder = new AlertDialog.Builder(GameActivity.this);
+                builder.setMessage(getString(R.string.adTextFull))
+                        .setCancelable(true)
+                        .setTitle(R.string.adText)
+                        .setPositiveButton(getString(R.string.yes),
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface arg0, int arg1) {
+                                        try{
+                                            bonusAds.showAd(GameActivity.this);
+                                        }catch(Exception|Error e){
+
+                                        }
+                                    }
+                                })
+                        .setNegativeButton(getString(R.string.close),
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        BoomActivity.boolShowAd = false;
+                                        changeStateToBoom();
+                                    }
+                                });
+                AlertDialog alert = builder.create();
+                alert.show();
+            }
+        });
+    }
+
+    public void startGameAfterAd(){
+        tvTime.setTextColor(getResources().getColor(R.color.colorConsolText));
+        llButtons.setVisibility(View.VISIBLE);
+        btnAd.setVisibility(View.GONE);
+        changeStateToMainGame();
+    }
+
+
+
     private class GameTimer extends AsyncTask<GameState, Integer, Void> {
 
         private final String TAG = this.getClass().getSimpleName();
 
-        private final long GAME_TIME = 60000 + (Database.currentLevel - 1)*10000;
+
         private final long BEGIN_TIME = 4000;
-        private final long BOOM_TIME = 3000;
+        private final long BOOM_TIME = 3000; //3000
         private long startTime, lastMarkTime;
 
 
         public GameTimer() {
+            GAME_TIME = getGameTime();
             startTime = System.currentTimeMillis();
             lastMarkTime = startTime;
+        }
+
+        private long getGameTime(){
+            long categoryTime = 0;
+
+            switch (Database.currentCategory){
+                case MINUS1:
+                    categoryTime = 10*1000;
+                    break;
+                case MISC1:
+                    categoryTime = 15*1000;
+                    break;
+                case MULT:
+                    categoryTime = 20*1000;
+                    break;
+                case PLUS2:
+                    categoryTime = 25*1000;
+                    break;
+                case DIVISION:
+                    categoryTime = 30*1000;
+                    break;
+                case MINUS2:
+                    categoryTime = 35*1000;
+                    break;
+            }
+
+            return categoryTime + 60000 + (Database.currentLevel - 1)*10000 + bonusTime;
         }
 
         @Override
@@ -891,8 +1253,6 @@ public class GameActivity extends Activity implements View.OnClickListener, Soun
                         }
                     }
                     break;
-
-
             }
 
             return null;

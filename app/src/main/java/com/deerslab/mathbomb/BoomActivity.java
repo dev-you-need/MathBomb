@@ -31,6 +31,8 @@ public class BoomActivity extends Activity implements View.OnClickListener, Soun
     private static InterstitialAd mInterstitialAd;
     private static AdRequest interstitialRequest;
 
+    public static boolean boolShowAd;
+
     protected static void adLoad(Context context){
 
         try {
@@ -90,7 +92,7 @@ public class BoomActivity extends Activity implements View.OnClickListener, Soun
         try {
             runOnUiThread(new Runnable() {
                 public void run() {
-                    if (mInterstitialAd.isLoaded()) {
+                    if (mInterstitialAd.isLoaded() && boolShowAd) {
                         mInterstitialAd.show();
                         //Toast.makeText(getApplicationContext(), "Showing Interstitial", Toast.LENGTH_SHORT).show();
                     }

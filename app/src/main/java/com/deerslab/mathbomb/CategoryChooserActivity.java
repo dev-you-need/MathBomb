@@ -31,11 +31,13 @@ public class CategoryChooserActivity extends Activity {
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         CategoryChooserItem chooserItems[] = new CategoryChooserItem[]{
-                new CategoryChooserItem(resources.getString(R.string.PLUS), preferences.getInt("progressPLUS", 0), preferences.getBoolean("accessiblePLUS", true)),
-                new CategoryChooserItem(resources.getString(R.string.MINUS), preferences.getInt("progressMINUS", 0), preferences.getBoolean("accessibleMINUS", false)),
-                new CategoryChooserItem(resources.getString(R.string.MISC1), preferences.getInt("progressMISC1", 0), preferences.getBoolean("accessibleMISC1", false)),
-                new CategoryChooserItem(resources.getString(R.string.MULT), preferences.getInt("progressMULT", 0), preferences.getBoolean("accessibleMULT", false)),
-                new CategoryChooserItem(resources.getString(R.string.DIVISION), preferences.getInt("progressDIVISION", 0), preferences.getBoolean("accessibleDIVISION", false))
+                new CategoryChooserItem(resources.getString(R.string.PLUS1), preferences.getInt("progressPLUS1", 0), preferences.getBoolean("accessiblePLUS1", true)),
+                new CategoryChooserItem(resources.getString(R.string.MINUS1), preferences.getInt("progressMINUS1", 0), preferences.getBoolean("accessibleMINUS1", true)),
+                new CategoryChooserItem(resources.getString(R.string.MISC1), preferences.getInt("progressMISC1", 0), preferences.getBoolean("accessibleMISC1", true)),
+                new CategoryChooserItem(resources.getString(R.string.MULT), preferences.getInt("progressMULT", 0), preferences.getBoolean("accessibleMULT", true)),
+                new CategoryChooserItem(resources.getString(R.string.PLUS2), preferences.getInt("progressPLUS2", 0), preferences.getBoolean("accessiblePLUS2", true)),
+                new CategoryChooserItem(resources.getString(R.string.DIVISION), preferences.getInt("progressDIVISION", 0), preferences.getBoolean("accessibleDIVISION", true)),
+                new CategoryChooserItem(resources.getString(R.string.MINUS2), preferences.getInt("progressMINUS2", 0), preferences.getBoolean("accessibleMINUS2", true))
         };
 
         CategoryChooserAdapter adapter = new CategoryChooserAdapter(this, R.layout.category_item, chooserItems);
@@ -53,37 +55,50 @@ public class CategoryChooserActivity extends Activity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 switch (position){
                     case 1:
-                        if (preferences.getBoolean("accessiblePLUS", true)){
-                            Database.currentCategory = CategoriesEnum.PLUS;
+                        if (preferences.getBoolean("accessiblePLUS1", true)){
+                            Database.currentCategory = CategoriesEnum.PLUS1;
                             startActivity(new Intent(CategoryChooserActivity.this, LevelChooserActivity.class));
                             finish();
                         }
                         break;
                     case 2:
-                        if (preferences.getBoolean("accessibleMINUS", false)){
-                            Database.currentCategory = CategoriesEnum.MINUS;
+                        if (preferences.getBoolean("accessibleMINUS1", true)){
+                            Database.currentCategory = CategoriesEnum.MINUS1;
                             startActivity(new Intent(CategoryChooserActivity.this, LevelChooserActivity.class));
                             finish();
                         }
                         break;
                     case 3:
-                        if (preferences.getBoolean("accessibleMISC1", false)){
+                        if (preferences.getBoolean("accessibleMISC1", true)){
                             Database.currentCategory = CategoriesEnum.MISC1;
                             startActivity(new Intent(CategoryChooserActivity.this, LevelChooserActivity.class));
                             finish();
                         }
                         break;
                     case 4:
-                        if (preferences.getBoolean("accessibleMULT", false)){
+                        if (preferences.getBoolean("accessibleMULT", true)){
                             Database.currentCategory = CategoriesEnum.MULT;
                             startActivity(new Intent(CategoryChooserActivity.this, LevelChooserActivity.class));
                             finish();
                         }
                         break;
-
                     case 5:
-                        if (preferences.getBoolean("accessibleDIVISION", false)){
+                        if (preferences.getBoolean("accessiblePLUS2", true)){
+                            Database.currentCategory = CategoriesEnum.PLUS2;
+                            startActivity(new Intent(CategoryChooserActivity.this, LevelChooserActivity.class));
+                            finish();
+                        }
+                        break;
+                    case 6:
+                        if (preferences.getBoolean("accessibleDIVISION", true)){
                             Database.currentCategory = CategoriesEnum.DIVISION;
+                            startActivity(new Intent(CategoryChooserActivity.this, LevelChooserActivity.class));
+                            finish();
+                        }
+                        break;
+                    case 7:
+                        if (preferences.getBoolean("accessibleMINUS2", true)){
+                            Database.currentCategory = CategoriesEnum.MINUS2;
                             startActivity(new Intent(CategoryChooserActivity.this, LevelChooserActivity.class));
                             finish();
                         }
@@ -104,7 +119,7 @@ public class CategoryChooserActivity extends Activity {
 
     @Override
     public void onBackPressed() {
-        startActivity(new Intent(CategoryChooserActivity.this, StartActivity.class));
+        //startActivity(new Intent(CategoryChooserActivity.this, StartActivity.class));
         finish();
     }
 }

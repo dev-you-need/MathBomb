@@ -18,9 +18,10 @@ import com.google.android.gms.games.Games;
 public class StartActivity extends Activity implements View.OnClickListener  {
 
     TextView tvCountBombsDefused, tvCountBombsExploded;
-    Button btnPlay, btnSett, btnFame;
+    Button btnPlay, btnSett, btnFame, btnBonus;
     private Tracker mTracker;
     String TAG = this.getClass().getSimpleName();
+    private BonusAds bonusAds;
 
     GoogleApiClient gac;
 
@@ -36,17 +37,13 @@ public class StartActivity extends Activity implements View.OnClickListener  {
         btnPlay = (Button) findViewById(R.id.btnPlay);
         btnSett = (Button) findViewById(R.id.btnSett);
         btnFame = (Button) findViewById(R.id.btnFame);
+        btnBonus = (Button) findViewById(R.id.btnBonus);
         btnPlay.setOnClickListener(this);
         btnSett.setOnClickListener(this);
         btnFame.setOnClickListener(this);
-
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        int countBombsDefused = preferences.getInt("countDefusedBomb", 0);
-        int countBombsExploded = preferences.getInt("countExplodedBomb", 0);
-
-        tvCountBombsDefused.setText(countBombsDefused + "");
-        tvCountBombsExploded.setText(countBombsExploded + "");
-
+        //btnFame.setVisibility(View.GONE);
+        btnBonus.setOnClickListener(this);
+        btnBonus.setVisibility(View.GONE);
 
         try {
             AnalyticsTrackers.initialize(this);
@@ -66,6 +63,37 @@ public class StartActivity extends Activity implements View.OnClickListener  {
         }
 
 
+        try {
+            bonusAds = BonusAds.getInstance(this);
+            bonusAds.createAd();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            if (gac.isConnected()){
+                btnFame.setVisibility(View.VISIBLE);
+            } else {
+                btnFame.setVisibility(View.GONE);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            btnFame.setVisibility(View.GONE);
+        }
+
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        int countBombsDefused = preferences.getInt("countDefusedBomb", 0);
+        int countBombsExploded = preferences.getInt("countExplodedBomb", 0);
+
+        tvCountBombsDefused.setText(countBombsDefused + "");
+        tvCountBombsExploded.setText(countBombsExploded + "");
     }
 
     @Override
@@ -76,7 +104,7 @@ public class StartActivity extends Activity implements View.OnClickListener  {
         switch (v.getId()){
             case R.id.btnPlay:
                 startActivity(new Intent(StartActivity.this, CategoryChooserActivity.class));
-                finish();
+                //finish();
                 break;
             case R.id.btnSett:
                 Log.d(TAG, "settings click");
@@ -95,6 +123,10 @@ public class StartActivity extends Activity implements View.OnClickListener  {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+                break;
+            case R.id.btnBonus:
+                startActivity(new Intent(this, BonusChooserActivity.class));
+                //finish();
 
         }
     }
