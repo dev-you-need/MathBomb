@@ -21,7 +21,7 @@ public class StartActivity extends Activity implements View.OnClickListener  {
     Button btnPlay, btnSett, btnFame, btnBonus;
     private Tracker mTracker;
     String TAG = this.getClass().getSimpleName();
-    private BonusAds bonusAds;
+    //private BonusAds bonusAds;
 
     GoogleApiClient gac;
 
@@ -37,13 +37,13 @@ public class StartActivity extends Activity implements View.OnClickListener  {
         btnPlay = (Button) findViewById(R.id.btnPlay);
         btnSett = (Button) findViewById(R.id.btnSett);
         btnFame = (Button) findViewById(R.id.btnFame);
-        btnBonus = (Button) findViewById(R.id.btnBonus);
+        //btnBonus = (Button) findViewById(R.id.btnBonus);
         btnPlay.setOnClickListener(this);
         btnSett.setOnClickListener(this);
         btnFame.setOnClickListener(this);
         //btnFame.setVisibility(View.GONE);
-        btnBonus.setOnClickListener(this);
-        btnBonus.setVisibility(View.GONE);
+        //btnBonus.setOnClickListener(this);
+        //btnBonus.setVisibility(View.GONE);
 
         try {
             AnalyticsTrackers.initialize(this);
@@ -62,14 +62,14 @@ public class StartActivity extends Activity implements View.OnClickListener  {
             e.printStackTrace();
         }
 
-
+/*
         try {
             bonusAds = BonusAds.getInstance(this);
             bonusAds.createAd();
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+*/
         try {
             if (gac.isConnected()){
                 btnFame.setVisibility(View.VISIBLE);
@@ -125,7 +125,7 @@ public class StartActivity extends Activity implements View.OnClickListener  {
                 }
                 break;
             case R.id.btnBonus:
-                startActivity(new Intent(this, BonusChooserActivity.class));
+                //startActivity(new Intent(this, BonusChooserActivity.class));
                 //finish();
 
         }
