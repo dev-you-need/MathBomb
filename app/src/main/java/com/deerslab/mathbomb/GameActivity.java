@@ -153,7 +153,8 @@ public class GameActivity extends Activity implements View.OnClickListener, Soun
 
             //Database.createAds(this);
         } catch (Exception e) {
-            e.printStackTrace();
+            sendError(e);
+            //e.printStackTrace();
         }
 
         userAnswer = new StringBuffer();
@@ -899,7 +900,8 @@ public class GameActivity extends Activity implements View.OnClickListener, Soun
             //soundPool.play(soundWin, 1, 1, 0, 0, 1);
             mediaPlayerWin.start();
         } catch (Exception e) {
-            e.printStackTrace();
+            sendError(e);
+            //e.printStackTrace();
         }
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -963,7 +965,8 @@ public class GameActivity extends Activity implements View.OnClickListener, Soun
             Games.Achievements.increment(gac, getString(R.string.achievement_100_bombs_defused), 1);
             Games.Leaderboards.submitScore(gac, getString(R.string.leaderboard_bombs_defused), countDefusedBomb);
         } catch (Exception e) {
-            e.printStackTrace();
+            sendError(e);
+            //e.printStackTrace();
         }
 
         mTracker.send(new HitBuilders.EventBuilder().setAction("win").setCategory(Database.currentCategory.name()).setLabel("Level " + Database.currentLevel).build());
@@ -1012,7 +1015,8 @@ public class GameActivity extends Activity implements View.OnClickListener, Soun
         try {
             gameTimer.cancel(true);
         } catch (Exception e) {
-            e.printStackTrace();
+            sendError(e);
+            //e.printStackTrace();
         }
 
         startActivity(new Intent(GameActivity.this, BoomActivity.class));
@@ -1025,7 +1029,8 @@ public class GameActivity extends Activity implements View.OnClickListener, Soun
         try {
             gameTimer.cancel(true);
         } catch (Exception e) {
-            e.printStackTrace();
+            sendError(e);
+            //e.printStackTrace();
         }
 
         startActivity(new Intent(GameActivity.this, LevelChooserActivity.class));
@@ -1215,7 +1220,8 @@ public class GameActivity extends Activity implements View.OnClickListener, Soun
                                         soundPool.play(soundTime, 1, 1, 0, 0, 1);
                                     }
                                 } catch (Exception e) {
-                                    e.printStackTrace();
+                                    sendError(e);
+                                    //e.printStackTrace();
                                 }
                             }
 
@@ -1281,7 +1287,8 @@ public class GameActivity extends Activity implements View.OnClickListener, Soun
                         try {
                             mTracker.send(new HitBuilders.EventBuilder().setAction("no time").setCategory(Database.currentCategory.name()).setLabel("Level " + Database.currentLevel).build());
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            sendError(e);
+                            //e.printStackTrace();
                         }
                         break;
                     case BEFORE_BOOM:
@@ -1293,6 +1300,18 @@ public class GameActivity extends Activity implements View.OnClickListener, Soun
             }
         }
 
+    }
+
+    public void sendError(Throwable error) {
+        error.printStackTrace();
+        try {
+            mTracker.send(new HitBuilders.EventBuilder()
+                    .setCategory("Error")
+                    .setAction(error.getMessage())
+                    .build());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private enum GameState {
