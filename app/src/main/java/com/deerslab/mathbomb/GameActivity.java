@@ -1,8 +1,6 @@
 package com.deerslab.mathbomb;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
@@ -69,7 +67,7 @@ public class GameActivity extends Activity implements View.OnClickListener, Soun
 
     final int sdk = android.os.Build.VERSION.SDK_INT;
 
-    BonusAds bonusAds = BonusAds.getInstance(this);
+    //BonusAds bonusAds = BonusAds.getInstance(this);
 
 
     @Override
@@ -183,7 +181,7 @@ public class GameActivity extends Activity implements View.OnClickListener, Soun
         BoomActivity.adLoad(this);
         BoomActivity.boolShowAd = true;
 
-        bonusAds.gameInit(this);
+        //bonusAds.gameInit(this);
 
 
 
@@ -261,13 +259,13 @@ public class GameActivity extends Activity implements View.OnClickListener, Soun
                         break;
                 }
                 break;
-            case BEFORE_BOOM:
+ /*           case BEFORE_BOOM:
                 switch (v.getId()){
                     case R.id.AdButton:
                         adDialog();
                         break;
                 }
-                break;
+                break;*/
         }
 
         refreshScreen();
@@ -986,13 +984,13 @@ public class GameActivity extends Activity implements View.OnClickListener, Soun
         //gameTimer.execute(gameState);
         gameTimer.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, gameState);
 
-
+/*
         Log.d("isReadyAdBool in game", ""+ bonusAds.isReadyAdBool);
         if (bonusAds.isReadyAdBool) {
             llButtons.setVisibility(View.GONE);
             btnAd.setVisibility(View.VISIBLE);
         }
-
+*/
     }
 
     protected void changeStateToBoom(){
@@ -1041,7 +1039,7 @@ public class GameActivity extends Activity implements View.OnClickListener, Soun
     public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
 
     }
-
+/*
     private void setMyProgress(int i){
             switch (i) {
                 case 10:
@@ -1067,8 +1065,8 @@ public class GameActivity extends Activity implements View.OnClickListener, Soun
                     break;
             }
 
-    }
-
+    }*/
+/*
     private void setLife(int i){
         vLife4.setBackgroundDrawable(blankRect);
         vLife3.setBackgroundDrawable(blankRect);
@@ -1086,8 +1084,8 @@ public class GameActivity extends Activity implements View.OnClickListener, Soun
                 vLife1.setBackgroundDrawable(greenRect);
                 break;
         }
-    }
-
+    }*/
+/*
     private void adDialog(){
 
         gameTimer.cancel(true);
@@ -1121,7 +1119,7 @@ public class GameActivity extends Activity implements View.OnClickListener, Soun
                 alert.show();
             }
         });
-    }
+    }*/
 
     public void startGameAfterAd(){
         tvTime.setTextColor(getResources().getColor(R.color.colorConsolText));
@@ -1172,7 +1170,7 @@ public class GameActivity extends Activity implements View.OnClickListener, Soun
                     break;
             }
 
-            return categoryTime + 60000 + (Database.currentLevel - 1)*10000 + bonusTime;
+            return categoryTime + 60000 + (Database.currentLevel - 1)*10000;
         }
 
         @Override
