@@ -67,9 +67,6 @@ public class GameActivity extends Activity implements View.OnClickListener, Soun
 
     final int sdk = android.os.Build.VERSION.SDK_INT;
 
-    //BonusAds bonusAds = BonusAds.getInstance(this);
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

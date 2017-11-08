@@ -21,7 +21,6 @@ public class StartActivity extends Activity implements View.OnClickListener  {
     Button btnPlay, btnSett, btnFame, btnBonus;
     private Tracker mTracker;
     String TAG = this.getClass().getSimpleName();
-    //private BonusAds bonusAds;
 
     GoogleApiClient gac;
 
@@ -62,14 +61,6 @@ public class StartActivity extends Activity implements View.OnClickListener  {
             e.printStackTrace();
         }
 
-/*
-        try {
-            bonusAds = BonusAds.getInstance(this);
-            bonusAds.createAd();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-*/
         try {
             if (gac.isConnected()){
                 btnFame.setVisibility(View.VISIBLE);
@@ -124,10 +115,6 @@ public class StartActivity extends Activity implements View.OnClickListener  {
                     e.printStackTrace();
                 }
                 break;
-            case R.id.btnBonus:
-                //startActivity(new Intent(this, BonusChooserActivity.class));
-                //finish();
-
         }
     }
 

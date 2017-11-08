@@ -52,10 +52,6 @@
             android:name=".MathBombSettings"
             android:theme="@android:style/Theme.DeviceDefault.Dialog.MinWidth">
         </activity>
-        <activity
-            android:name=".BonusChooserActivity"
-            android:screenOrientation="portrait">
-        </activity>
 
         <!-- ADMOB -->
         <activity

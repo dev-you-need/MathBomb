@@ -27,7 +27,6 @@ public class BoomActivity extends Activity implements View.OnClickListener, Soun
     private final int MAX_STREAMS = 1;
     private int soundBoom;
 
-    private static final String AD_UNIT_ID_INTERSTITIAL = "ca-app-pub-4902424516454995/1084840465";
     private static InterstitialAd mInterstitialAd;
     private static AdRequest interstitialRequest;
 
@@ -36,6 +35,7 @@ public class BoomActivity extends Activity implements View.OnClickListener, Soun
     protected static void adLoad(Context context){
 
         try {
+            final String AD_UNIT_ID_INTERSTITIAL = context.getString(R.string.AD_UNIT_ID);
             mInterstitialAd = new InterstitialAd(context);
             mInterstitialAd.setAdUnitId(AD_UNIT_ID_INTERSTITIAL);
 

@@ -14,7 +14,6 @@ public class GameTimer extends AsyncTask<Void, Integer, Void> {
     private final long TIME = 60000;
     private long startTime, lastMarkTime;
 
-
     public GameTimer(TextView tvTimer) {
         this.tvTimer = tvTimer;
         startTime = System.currentTimeMillis();
