@@ -1166,8 +1166,15 @@ public class GameActivity extends Activity implements View.OnClickListener, Soun
                     categoryTime = 35*1000;
                     break;
             }
+            long levelTime = 0;
+            try {
+                levelTime = (Database.currentLevel - 1)*10000;
+            } catch (Exception e){
+                Log.e(TAG, e.toString());
+                sendError(e);
+            }
 
-            return categoryTime + 60000 + (Database.currentLevel - 1)*10000;
+            return categoryTime + 60000 + levelTime;
         }
 
         @Override

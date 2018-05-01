@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Математическая бомба</string>
+    <string name="PLUS1">+ Сложение, часть 1</string>
+    <string name="MULT">* Умножение</string>
+    <string name="DIVISION">/ Деление</string>
+    <string name="MINUS1">- Вычитание, часть 1</string>
+    <string name="enterToGame">Выполняется вход в режим разминирования</string>
+    <string name="enterAnswer">Введите правильный ответ</string>
+    <string name="bombDefused">Бомба обезврежена!</string>
+    <string name="pressToNext">Нажмите зелёную кнопку для перехода на следующий уровень или красную кнопку для выхода.</string>
+    <string name="play">Играть</string>
+    <string name="bombsExploded">Бомб взорвалось:</string>
+    <string name="bombsDefused">Бомб обезврежено:</string>
+    <string name="rules">Правила</string>
+    <string name="statistics">Статистика</string>
+    <string name="chooseCategory">Выберите категорию:</string>
+    <string name="chooseLevel">Выберите уровень:</string>
+    <string name="MISC1">+- Сложение и вычитание</string>
+    <string name="fail">Правильный ответ</string>
+    <string name="activateBoom">Активация взрывателя</string>
+    <string name="level">Уровень</string>
+    <string name="startComment">Введите свой ответ и нажмите зелёную кнопку.</string>
+    <string name="categoryRules">Следующая категория открывается за каждые 5 уровней в предыдущих категориях.</string>
+    <string name="settings">Настройки</string>
+    <string name="sound">Звук</string>
+    <string name="hallOfFame">Зал славы</string>
+    <string name="PLUS2">+ Сложение, часть 2</string>
+    <string name="MINUS2">- Вычитание, часть 2</string>
+    <string name="butEarnLife">Получить второй шанс сапёра</string>
+    <string name="buttEarnTime">Нашаманить побольше времени</string>
+    <string name="butMainMenu">Вернуться в главное меню</string>
+    <string name="chooseBonus">Выберите бонус:</string>
+    <string name="btnBonus">Получить бонусы</string>
+    <string name="bonusQuest">Показать видео для получения бонуса?</string>
+    <string name="yes">Конечно!</string>
+    <string name="no">Не сейчас.</string>
+    <string name="dialogBonusTitle">Бонус</string>
+    <string name="adText">Попробовать ещё раз</string>
+    <string name="close">Закрыть</string>
+    <string name="adTextFull">Злодей говорит что за просмотр рекламы даст ещё одну попытку. Посмотрим рекламу?</string>
+</resources>

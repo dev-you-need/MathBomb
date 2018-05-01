@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_id" translatable="false">769133943600</string>
+    <string name="package_name" translatable="false">com.deerslab.mathbomb</string>
+    <string name="achievement_addition" translatable="false">CgkIsLbSn7EWEAIQAQ</string>
+    <string name="achievement_subtraction" translatable="false">CgkIsLbSn7EWEAIQAg</string>
+    <string name="achievement_multiplication" translatable="false">CgkIsLbSn7EWEAIQAw</string>
+    <string name="achievement_division" translatable="false">CgkIsLbSn7EWEAIQBA</string>
+    <string name="achievement_ombinations_1" translatable="false">CgkIsLbSn7EWEAIQBQ</string>
+    <string name="achievement_100_bombs_defused" translatable="false">CgkIsLbSn7EWEAIQBg</string>
+    <string name="leaderboard_bombs_defused" translatable="false">CgkIsLbSn7EWEAIQBw</string>
+</resources>

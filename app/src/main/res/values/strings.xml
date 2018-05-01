@@ -1,0 +1,43 @@
+<resources>
+    <string name="app_name">Math bomb</string>
+    <string name="PLUS1">+ Addition, part 1</string>
+    <string name="MINUS1">- Subtraction, part 1</string>
+    <string name="MULT">* Multiplication</string>
+    <string name="DIVISION">/ Division</string>
+    <string name="enterToGame">Enter in mine neutralization mode</string>
+    <string name="enterAnswer">Enter the correct answer.</string>
+    <string name="bombDefused">Bomb has been defused!</string>
+    <string name="pressToNext">Press the green button to go to the next level or the red button to exit</string>
+    <string name="play">Play</string>
+    <string name="bombsDefused">Bombs defused:</string>
+    <string name="bombsExploded">Bombs exploded:</string>
+    <string name="rules">Rules</string>
+    <string name="statistics">Statistics</string>
+    <string name="chooseCategory">Choose category:</string>
+    <string name="chooseLevel">Choose level:</string>
+    <string name="MISC1">+- Addition and Subtraction</string>
+    <string name="fail">Correct answer</string>
+    <string name="activateBoom">Fuze activation</string>
+    <string name="level">Level</string>
+    <string name="startComment">Enter your answer and press the green button</string>
+    <string name="categoryRules">The next categories is open if you complete 5 levels in previous categories.</string>
+    <string name="settings">Settings</string>
+    <string name="sound">Sound</string>
+    <string name="hallOfFame">Hall of Fame</string>
+    <string name="PLUS2">+ Addition, part 2</string>
+    <string name="MINUS2">- Subtraction, part 2</string>
+    <string name="buttEarnTime">Earn Time</string>
+    <string name="butEarnLife">Earn Life</string>
+    <string name="butMainMenu">Return to Main Menu</string>
+    <string name="chooseBonus">Choose bonus:</string>
+    <string name="btnBonus">Get bonuses</string>
+    <string name="bonusQuest">Watch the video to get the bonus?</string>
+    <string name="yes">Sure!</string>
+    <string name="no">Not now.</string>
+    <string name="dialogBonusTitle">Bonus</string>
+    <string name="adText">Another try</string>
+    <string name="close">Close</string>
+    <string name="adTextFull">Show advertising for another try?</string>
+    <string name="AD_UNIT_ID" translatable="false">ca-app-pub-4902424516454995/8969717665</string>
+    <string name="APP_ID" translatable="false">ca-app-pub-4902424516454995~8747708063</string>
+</resources>
